@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sleeper Bus Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <h1>🚌 Sleeper Bus Booking</h1>
+                    <div class="route-info">
+                        <span>Ahmedabad</span>
+                        <span>→</span>
+                        <span>Nadiad</span>
+                        <span>→</span>
+                        <span>Vadodara</span>
+                        <span>→</span>
+                        <span>Surat</span>
+                        <span>→</span>
+                        <span>Mumbai</span>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="showBookings()" style="height: fit-content;">View Bookings</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="step-indicator">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Journey</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Seats</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Meals</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Details</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-number">5</div>
+                    <div class="step-label">Confirm</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Journey Details -->
+            <div class="section active" id="step1">
+                <div class="journey-details">
+                    <h3>Select Boarding Point</h3>
+                    <select class="form-select" id="boardingSelect" onchange="handleBoardingChange()">
+                        <option value="">-- Select Boarding Point --</option>
+                    </select>
+                </div>
+
+                <div class="journey-details">
+                    <h3>Select Dropping Point</h3>
+                    <select class="form-select" id="droppingSelect" onchange="handleDroppingChange()">
+                        <option value="">-- Select Dropping Point --</option>
+                    </select>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-primary" onclick="goToStep(2)">Next: Select Seats</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Seat Selection -->
+            <div class="section" id="step2">
+                <div class="seat-layout">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Select Your Seats</h3>
+                    
+                    <div class="seat-legend">
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: #10b981;"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: #667eea;"></div>
+                            <span>Selected</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: #9ca3af;"></div>
+                            <span>Booked</span>
+                        </div>
+                    </div>
+
+                    <div class="bus-container">
+                        <div class="seat-column" id="leftSeats"></div>
+                        <div class="aisle">AISLE</div>
+                        <div class="seat-column" id="rightSeats"></div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(3)">Next: Select Meals</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Meal Selection -->
+            <div class="section" id="step3">
+                <h3 style="margin-bottom: 20px;">Select Meals (Optional)</h3>
+                <div class="meal-options" id="mealOptions"></div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(4)">Next: Passenger Details</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Passenger Details -->
+            <div class="section" id="step4">
+                <h3 style="margin-bottom: 20px;">Passenger Details</h3>
+                <div class="passenger-form" id="passengerForms"></div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(5)">Review Booking</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Confirmation -->
+            <div class="section" id="step5">
+                <div class="prediction-box" id="predictionBox">
+                    <h3>Booking Confirmation Probability</h3>
+                    <div class="prediction-percentage" id="predictionPercentage">--</div>
+                    <p id="predictionMessage">Analyzing booking data...</p>
+                </div>
+
+                <div class="booking-summary" id="bookingSummary"></div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="goToStep(4)">Back</button>
+                    <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
+                </div>
+            </div>
+
+            <!-- View Bookings Modal -->
+            <div class="section" id="stepBookings">
+                <h2 style="margin-bottom: 20px;">All Bookings</h2>
+                <div id="bookingsListContainer" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Bookings will be loaded here -->
+                </div>
+                <div class="buttons" style="justify-content: center; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="backToHome()">Back to Home</button>
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <div class="section" id="stepSuccess">
+                <div class="success-message">
+                    <div class="success-icon">✓</div>
+                    <h2>Booking Confirmed!</h2>
+                    <div class="booking-id" id="bookingIdDisplay"></div>
+                    
+                    <!-- Confirmation Probability -->
+                    <div class="prediction-box" id="successPredictionBox" style="margin: 20px 0;">
+                        <h3>Confirmation Probability</h3>
+                        <div class="prediction-percentage" id="successPredictionPercentage">--</div>
+                        <p id="successPredictionMessage">Your booking has been confirmed!</p>
+                    </div>
+                    
+                    <p>Your tickets have been booked successfully. A confirmation has been sent to your email.</p>
+                    <div class="buttons" style="justify-content: center; margin-top: 30px;">
+                        <button class="btn btn-primary" onclick="location.reload()">Book Another Ticket</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
