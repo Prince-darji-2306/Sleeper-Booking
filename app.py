@@ -13,7 +13,7 @@ with open("model/Sleeper_Booking.pkl", "rb") as f:
     model = pickle.load(f)
 
 bookings = []
-booked_seats = ['5U', '12U', '18L', '25L', '29L']  # Pre-booked seats
+booked_seats = ['5U', '12U', '10L', '2L', '5L']  # Pre-booked seats
 
 # Station data
 stations = [
@@ -193,24 +193,6 @@ def cancel_booking(booking_id):
         "refund_amount": booking['total_price']
     })
 
-
-@app.route('/api/booking/<booking_id>', methods=['GET'])
-def get_booking(booking_id):
-    """Get booking details"""
-    booking = next((b for b in bookings if b['booking_id'] == booking_id), None)
-    
-    if not booking:
-        return jsonify({
-            "success": False,
-            "message": "Booking not found"
-        }), 404
-    
-    return jsonify({
-        "success": True,
-        "booking": booking
-    })
-
-
 @app.route('/api/predict', methods=['POST'])
 def predict_confirmation():
     """
@@ -304,40 +286,6 @@ def predict_confirmation():
             "has_meal": len(selected_meals) > 0,
             "total_amount": total_amount
         }
-    })
-
-
-@app.route('/api/availability', methods=['GET'])
-def check_availability():
-    """Check seat availability for specific route"""
-    boarding = request.args.get('boarding', type=int)
-    dropping = request.args.get('dropping', type=int)
-    
-    if not boarding or not dropping:
-        return jsonify({
-            "success": False,
-            "message": "Boarding and dropping points required"
-        }), 400
-    
-    total_seats = 40
-    available_count = total_seats - len(booked_seats)
-    
-    boarding_station = next((s for s in stations if s['id'] == boarding), None)
-    dropping_station = next((s for s in stations if s['id'] == dropping), None)
-    
-    if not boarding_station or not dropping_station:
-        return jsonify({
-            "success": False,
-            "message": "Invalid station"
-        }), 400
-    
-    price_per_seat = dropping_station['price'] - boarding_station['price']
-    
-    return jsonify({
-        "success": True,
-        "available_seats": available_count,
-        "price_per_seat": price_per_seat,
-        "route": f"{boarding_station['name']} to {dropping_station['name']}"
     })
 
 
